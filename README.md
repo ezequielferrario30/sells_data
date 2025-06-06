@@ -4,94 +4,116 @@ Se diseñó e implementó un sistema completo de análisis de ventas para una em
 El sistema permite cargar datos desde archivos CSV a una base de datos MySQL, modelar entidades usando programación orientada a objetos en Python, aplicar patrones de diseño (Factory, Singleton), realizar análisis avanzados mediante SQL y validar todo con testing automatizado y cobertura profesional.
 
 2. ¿Cómo está organizado el proyecto?
-bash
-Copiar
-Editar
+
 ventas_data_engineering/
-├── data/           # Archivos CSV originales
-├── src/
+├── venv/                   # Entorno virtual (EXCLUIDO del repositorio)
+├── data/                   # CSVs originales (input)
+│   ├── categories.csv
+│   ├── cities.csv
+│   ├── countries.csv
+│   ├── customers.csv
+│   ├── employees.csv
+│   ├── products.csv
+│   └── sales.csv
+│
+├── src/                    # Código fuente principal del proyecto
 │   ├── __init__.py
-│   ├── database.py         # Singleton para conexión MySQL
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── category.py
-│   │   ├── city.py
-│   │   ├── country.py
-│   │   ├── customer.py
-│   │   ├── employee.py
-│   │   ├── factory.py      # Factory Method
-│   │   ├── product.py
-│   │   └── sale.py
-│   └── ...                 # Otros scripts fuente
-├── sql/
-│   └── load_data.sql       # Script para crear tablas y cargar datos
-├── tests/
+│   ├── main.py             # Punto de entrada del sistema
+│   ├── database.py         # Conexión a MySQL (Singleton clásico)
+│   ├── database_sqlalchemy.py # Conexión a MySQL usando SQLAlchemy (Singleton)
+│   ├── load_data.py        # Carga los CSV a la base de datos
+│   └── models/             # Clases del dominio (POO)
+│       ├── __init__.py
+│       ├── category.py
+│       ├── city.py
+│       ├── country.py
+│       ├── customer.py
+│       ├── employee.py
+│       ├── product.py
+│       ├── sale.py
+│       └── factory.py      # Factory Method centralizado
+│
+├── sql/                    # Scripts SQL (carga, objetos SQL, consultas)
+│   ├── load_data.sql
+│   ├── create_views.sql
+│   ├── create_procedures.sql
+│   ├── create_triggers.sql
+│   └── analysis_queries.sql
+│
+├── tests/                  # Pruebas unitarias (pytest, un archivo por clase/lógica)
 │   ├── __init__.py
 │   ├── test_customer.py
 │   ├── test_product.py
 │   ├── test_sale.py
-│   ├── test_employee.py
 │   ├── test_factory.py
-│   └── ...                 # Otros tests
-├── .env                    # Variables de entorno (credenciales DB)
-├── .gitignore
-├── requirements.txt        # Dependencias del proyecto
-└── README.md               # Documentación y justificaciones técnicas
-3. Justificación técnica (profunda y argumentada)
+│   ├── test_database_sqlalchemy.py
+│   └── ...
+│
+├── integracion_final.ipynb # Notebook integrador (conexión, queries, patrones, tests)
+├── .env                    # Variables de entorno (NO versionado)
+├── .gitignore              # Ignorar venv/, .env, etc.
+├── requirements.txt        # Librerías necesarias
+└── README.md               # Documentación del proyecto
+
+
+3. Justificación técnica y decisiones clave
 Carga de datos automatizada
-Se eligió el comando LOAD DATA LOCAL INFILE en el script load_data.sql para automatizar la importación de datos desde archivos CSV a MySQL.
+Se implementó el script load_data.sql con LOAD DATA LOCAL INFILE para importar eficientemente los datos desde los CSV a MySQL.
 
-Ventajas:
+Permite recargar grandes volúmenes, es reproducible y portable entre entornos.
 
-Permite recargar grandes volúmenes de datos de forma eficiente, repetible y documentada.
-
-Es preferible a la carga manual o a scripts línea por línea porque reduce errores humanos, acelera el proceso y asegura la trazabilidad.
-
-La estructura del script está pensada para ser portable entre distintos entornos, facilitando el testing y la migración.
+Se eligió este enfoque sobre la carga manual o scripts por filas porque minimiza errores humanos y maximiza la trazabilidad.
 
 Modelado orientado a objetos (POO)
-Cada entidad (producto, cliente, venta, etc.) se modeló como una clase Python independiente.
+Cada entidad de negocio (producto, cliente, venta, etc.) se modeló como una clase Python independiente, aplicando encapsulamiento, constructores claros y métodos de negocio relevantes (ejemplo: is_perishable en Product).
 
-Decisiones:
+Esto permite centralizar reglas y validaciones, facilitando cambios futuros si evolucionan los requisitos del negocio.
 
-Usé atributos encapsulados y propiedades para proteger la integridad de los datos (principio de encapsulamiento).
-
-Incorporé métodos de negocio en cada clase (por ejemplo, is_perishable en Product) para reflejar reglas y validaciones reales, y centralizar lógica que podría cambiar si evolucionan los requisitos.
-
-Patrones de diseño – Comparación y justificación
+Patrones de diseño: comparación y justificación
 Factory Method
-Se implementó una factory centralizada para crear instancias de todos los modelos.
+Implementado en src/models/factory.py para centralizar y estandarizar la creación de instancias de modelos.
 
-Elegí este patrón sobre otros (como Builder o Abstract Factory) porque balancea bien simplicidad y flexibilidad:
+Se prefirió sobre Builder o Abstract Factory por ser más simple y flexible para modelos independientes.
 
-Builder sería útil si hubiera que armar objetos complejos en muchos pasos (no es el caso acá).
-
-Abstract Factory sería útil si hubiera familias de objetos interdependientes (acá son independientes).
-
-Con Factory, si el modelo de datos cambia, la lógica de creación de objetos está centralizada y no dispersa por todo el código, lo que simplifica el mantenimiento.
+Si el modelo de datos cambia, basta ajustar la Factory, manteniendo el resto del código limpio.
 
 Singleton
-La conexión a MySQL usa el patrón Singleton para garantizar una única instancia durante todo el ciclo de vida de la aplicación.
+Usado en la conexión a la base (database.py y database_sqlalchemy.py), asegura una única instancia viva en todo el ciclo del sistema, evitando fugas de recursos y mejorando la eficiencia.
 
-Elegí Singleton y no otros (como Object Pool) porque el sistema no requiere múltiples conexiones concurrentes; con una conexión persistente se cumple el principio de eficiencia y se evita sobrecargar el servidor.
+Más simple y directo que Object Pool para ETLs, scripts y aplicaciones no concurrentes.
 
-Centralizar el acceso a la conexión también facilita el testing y la configuración del entorno, porque todos los componentes acceden al mismo recurso de manera controlada y segura.
+Centraliza la configuración y facilita el testing.
 
-Reflexión
-La decisión de usar estos patrones se tomó considerando la escalabilidad futura (el sistema puede crecer y soportar nuevos modelos, reglas o integraciones sin grandes refactorizaciones), la claridad para cualquier desarrollador que tome el proyecto después, y el cumplimiento explícito de criterios de calidad y mejores prácticas de la industria.
+Reflexión sobre patrones
+“Las elecciones de patrones priorizaron la escalabilidad, mantenibilidad y claridad. Se compararon alternativas y se eligió lo óptimo para la escala y el dominio, siempre alineados a mejores prácticas profesionales.”
+
+----
 
 Testing y calidad
-Se implementó una suite de pruebas unitarias con pytest, separando tests por clase, lo que es más profesional y permite detectar problemas rápidamente.
+Se desarrolló una suite de tests unitarios con pytest, separando un archivo por clase y lógica, alcanzando una cobertura >80%.
 
-La cobertura de tests apunta al 80% o más, superando el mínimo, y los tests no solo validan getters/setters sino también reglas de negocio y casos borde.
+Los tests validan tanto getters/setters como lógica de negocio y la correcta aplicación de los patrones de diseño (ejemplo: Singleton siempre retorna la misma instancia, Factory genera el tipo correcto).
 
-Ventaja:
-Esto asegura robustez ante cambios, facilita la refactorización y demuestra una mentalidad de ingeniería responsable, no solo de scripting.
+Esto asegura robustez, permite detectar errores rápidamente y respalda futuras refactorizaciones.
+
+-----
+
+Seguridad y buenas prácticas
+Las credenciales de la base se almacenan únicamente en el archivo .env, que está en el .gitignore y nunca se sube al repositorio.
+
+El código jamás expone credenciales; usa os.getenv() y carga variables seguras con python-dotenv.
+
+El proyecto es seguro, portable y fácil de configurar en cualquier entorno.
 
 Organización y reproducibilidad
-El proyecto está organizado en carpetas por responsabilidad (src/, sql/, tests/, data/), siguiendo las prácticas de proyectos reales de software.
+El proyecto está ordenado por responsabilidad, siguiendo prácticas reales de ingeniería de datos.
 
-Todo el flujo (carga, modelado, testing) está versionado en el repositorio, documentado y justificado, mostrando un trabajo profesional, reproducible y defendible ante cualquier auditoría o cambio de equipo.
+Los scripts, notebooks, pruebas y SQL están versionados y documentados, haciendo el sistema profesional y defendible ante auditorías o equipos nuevos.
+
+El notebook integracion_final.ipynb demuestra la integración real, con outputs visibles.
+
+
+-----
 
 Tabla resumen – Patrones de diseño aplicados
 Patrón	Ubicación / Aplicación	¿Para qué se usa?	Ventajas principales	¿Por qué se eligió sobre otros?
@@ -99,39 +121,51 @@ Factory Method	src/models/factory.py	Centralizar y estandarizar la creación de 
 - Escalabilidad
 - Facilidad de mantenimiento
 - Permite nuevas fuentes de datos fácilmente	Más simple y flexible que Abstract Factory o Builder
-Singleton	src/database.py	Garantizar que solo exista una única conexión a la base de datos	- Eficiencia
+Singleton	src/database.py,
+src/database_sqlalchemy.py	Garantizar que solo exista una única conexión a la base de datos	- Eficiencia
 - Seguridad
 - Evita fugas de recursos
 - Punto de acceso único	Más simple y directo que Object Pool o Service Locator
 
+
+
 4. ¿Cómo ejecutar el proyecto?
 Clonar el repositorio y crear un entorno virtual:
 
-bash
-Copiar
-Editar
+```
+
 git clone [URL_DEL_REPO]
 cd ventas_data_engineering
 python -m venv venv
 source venv/bin/activate  # O .\venv\Scripts\activate en Windows
 pip install -r requirements.txt
+
+
+```
+
 Configurar el archivo .env con las credenciales de la base de datos.
 
 Ejecutar el script SQL sql/load_data.sql en MySQL Workbench para cargar los datos.
 
 Correr los tests con:
 
-bash
-Copiar
-Editar
+```
 pytest
-Ejecutar análisis o scripts adicionales desde src/.
+
+```
+
+Ejecutar el notebook integrador integracion_final.ipynb para ver la integración completa (conexión, queries, patrones, pruebas, outputs).
+
+Explorar o ejecutar scripts adicionales desde src/.
+
 
 5. Repositorio y versionado
-Estructura completa, scripts fuente, tests, datos de ejemplo, scripts SQL y documentación están versionados en este repositorio.
+Todo el código, scripts, tests, SQL y documentación están versionados y justificados.
 
-Cada cambio está justificado y registrado para asegurar trazabilidad y fácil auditoría.
+No se suben datos sensibles ni archivos de entorno, cumpliendo estándares de seguridad y profesionalismo.
 
-6. Frase final
-Cada decisión de diseño se fundamentó en maximizar la mantenibilidad, eficiencia, escalabilidad y claridad del sistema, usando patrones y prácticas seleccionados por sus ventajas reales frente a otras alternativas. La solución refleja tanto la aplicación del conocimiento técnico como la capacidad de razonar y justificar decisiones, características clave para un ingeniero de datos profesional.
+Cada cambio está registrado para trazabilidad y auditoría.
 
+
+6. Reflexión final
+“Cada decisión de diseño se fundamentó en maximizar la mantenibilidad, eficiencia, escalabilidad y claridad del sistema, usando patrones y prácticas seleccionados por sus ventajas reales frente a otras alternativas. La solución refleja tanto la aplicación del conocimiento técnico como la capacidad de razonar y justificar decisiones, características clave para un ingeniero de datos profesional.”
