@@ -1,4 +1,4 @@
--- Vista: ventas mensuales por ciudad y categoría
+-- vista: ventas mensuales por ciudad y categoría
 CREATE OR REPLACE VIEW ventas_mensuales_ciudad_categoria AS
 SELECT
     ci.city_name,

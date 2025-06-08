@@ -1,4 +1,4 @@
--- Procedimiento almacenado: registrar venta
+-- procedimiento almacenado: registrar venta
 DELIMITER $$
 CREATE PROCEDURE registrar_venta(
     IN p_sales_person_id INT,

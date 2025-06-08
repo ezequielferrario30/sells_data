@@ -1,4 +1,4 @@
--- Función: calcular descuento según tipo de cliente
+-- funcion calcular descuento según tipo de cliente
 DELIMITER $$
 CREATE FUNCTION calcular_descuento(tipo_cliente VARCHAR(20), monto DECIMAL(10,2))
 RETURNS DECIMAL(10,2)

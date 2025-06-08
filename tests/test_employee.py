@@ -8,5 +8,5 @@ def test_employee_full_name():
 def test_employee_years_worked():
     e = Employee(2, "Sofia", "", "Lopez", "1985-06-06", "F", 3, "2020-01-01 00:00:00")
     current = datetime(2024, 6, 1)
-    # Entre 2020 y 2024 son 4 años aprox
+    
     assert e.years_worked(current) in [4, 3]

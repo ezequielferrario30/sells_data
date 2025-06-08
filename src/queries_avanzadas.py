@@ -3,9 +3,9 @@ from src.database_sqlalchemy import SQLAlchemyConnection
 # Crear la instancia Singleton de conexión
 db = SQLAlchemyConnection()
 
-# --------------------------------------------
-# 1. Top 10 clientes por compras totales (CTE + RANK)
-# --------------------------------------------
+
+# Top 10 clientes por compras totales (CTE + RANK)
+
 query1 = """
 WITH compras_por_cliente AS (
     SELECT
@@ -31,9 +31,9 @@ print("------ Top 10 clientes por compras totales ------")
 print(df1)
 print()
 
-# --------------------------------------------
-# 2. Ventas de productos con ROW_NUMBER por fecha de venta
-# --------------------------------------------
+
+# ventas de productos con ROW_NUMBER por fecha de venta
+
 query2 = """
 WITH ventas_productos AS (
     SELECT
@@ -56,9 +56,9 @@ print("------ Ventas de productos con ROW_NUMBER ------")
 print(df2.head(20))
 print()
 
-# --------------------------------------------
-# 3. Ranking de productos más vendidos por cantidad (DENSE_RANK)
-# --------------------------------------------
+
+#  rank de productos más vendidos por cantidad (DENSE_RANK)
+
 query3 = """
 WITH ventas_por_producto AS (
     SELECT
@@ -83,9 +83,9 @@ print("------ Top 10 productos más vendidos ------")
 print(df3)
 print()
 
-# --------------------------------------------
-# 4. Evolución mensual de ventas (CTE + SUM acumulado)
-# --------------------------------------------
+
+# 4. evolucionmensual de ventas (CTE + SUM acumulado)
+
 query4 = """
 WITH ventas_mensuales AS (
     SELECT
@@ -106,9 +106,9 @@ print("------ Evolución mensual de ventas ------")
 print(df4)
 print()
 
-# --------------------------------------------
-# 5. Clientes frecuentes en cada ciudad (RANK PARTITION BY city)
-# --------------------------------------------
+
+# clientes frecuentes en cada ciudad (RANK PARTITION BY city)
+
 query5 = """
 WITH clientes_ciudad AS (
     SELECT
@@ -134,9 +134,9 @@ print("------ Top clientes frecuentes por ciudad ------")
 print(df5)
 print()
 
-# --------------------------------------------
-# 6. Ventas por categoría y su ranking mensual (RANK, partición por mes)
-# --------------------------------------------
+
+# venta por categoría y su ranking mensual (RANK, partición por mes)
+
 query6 = """
 WITH ventas_categoria_mes AS (
     SELECT
@@ -159,5 +159,5 @@ print("------ Ventas por categoría y ranking mensual ------")
 print(df6)
 print()
 
-# Cerrar conexión al final
+
 db.close()

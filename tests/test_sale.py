@@ -2,7 +2,7 @@ from src.models.sale import Sale
 
 def test_sale_total():
     s = Sale(100, 1, 2, 3, 5, 0.10, 100.0, "2024-06-01", "X123")
-    # total_price=100, discount=0.10, total=90
+    # total_price=100, discount=0.10, total deberia ser=90
     assert s.total == 90.0
 
 def test_sale_to_dict():
