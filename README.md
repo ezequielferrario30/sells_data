@@ -119,7 +119,7 @@ Esto hace el código más eficiente, seguro y fácil de testear, porque si neces
 Usar este metodo me permiteque la conexión sea única y controlada, evitando errores y mejorando el rendimiento del sistema. Si bien hay otros metodos, en este caso solo tenia que cargar csv, es decir, datos de un mismo tipo por lo que me parecio lo mas simple y eficiente para no elegir otro patron.
 
 
----
+----
 
 ### Escalabilidad
 
